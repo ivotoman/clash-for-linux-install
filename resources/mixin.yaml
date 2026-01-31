@@ -49,6 +49,11 @@ tun:
   exclude-interface:
     - docker0 # 避免无法访问容器内服务
     - podman0 # 详见：https://github.com/nelvko/clash-for-linux-install/issues/100#issuecomment-2995667368
+    # 避免与 Mullvad/WireGuard 等 VPN 冲突
+    - wg0
+    - wg1
+    - mullvad-wg
+    - wg-mullvad
 
 # DNS 配置
 dns:

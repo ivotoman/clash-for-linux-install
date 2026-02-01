@@ -22,19 +22,19 @@ _valid_required() {
     for cmd in "${required_cmds[@]}"; do
         command -v "$cmd" >&/dev/null || missing+=("$cmd")
     done
-    [ "${#missing[@]}" -gt 0 ] && _error_quit "请先安装以下命令：${missing[*]}"
+    [ "${#missing[@]}" -gt 0 ] && _error_quit "Please install the following commands first: ${missing[*]}"
 }
 
 _valid() {
     _valid_required
 
-    [ -d "$CLASH_BASE_DIR" ] && _error_quit "请先执行卸载脚本,以清除安装路径：$CLASH_BASE_DIR"
+    [ -d "$CLASH_BASE_DIR" ] && _error_quit "Please run the uninstall script first to clear the install path: $CLASH_BASE_DIR"
 
-    local msg="${CLASH_BASE_DIR}：当前路径不可用，请在 .env 中更换安装路径。"
+    local msg="${CLASH_BASE_DIR}: Path unavailable, please change the install path in .env."
     mkdir -p "$CLASH_BASE_DIR" || _error_quit "$msg"
     _is_regular_sudo && [[ $CLASH_BASE_DIR == /root* ]] && _error_quit "$msg"
 
-    [ -z "$ZSH_VERSION" ] && [ -z "$BASH_VERSION" ] && _error_quit "仅支持：bash、zsh 执行"
+    [ -z "$ZSH_VERSION" ] && [ -z "$BASH_VERSION" ] && _error_quit "Only bash and zsh are supported"
 }
 
 _parse_args() {
@@ -122,7 +122,7 @@ _download_zip() {
         url_subconverter=https://github.com/tindy2013/subconverter/releases/download/${VERSION_SUBCONVERTER}/subconverter_aarch64.tar.gz
         ;;
     *)
-        _error_quit "未知的架构版本：$arch，请自行下载对应版本至 ${ZIP_BASE_DIR} 目录"
+        _error_quit "Unknown architecture: $arch, please download the corresponding version to ${ZIP_BASE_DIR}"
         ;;
     esac
 
@@ -134,12 +134,12 @@ _download_zip() {
     )
 
     local item target_zips=()
-    _okcat '🖥️ ' "系统架构：$arch $level"
+    _okcat '🖥️ ' "System architecture: $arch $level"
     for item in "$@"; do
         local url="${urls[$item]}"
         local proxy_url="${URL_GH_PROXY:+${URL_GH_PROXY%/}/}${url}"
         [ "$item" != 'clash' ] && url="$proxy_url"
-        _okcat '⏳' "正在下载：${item}：$url"
+        _okcat '⏳' "Downloading: ${item}: $url"
         local target="${ZIP_BASE_DIR}/$(basename "$url")"
         curl \
             --progress-bar \
@@ -162,7 +162,7 @@ _valid_zip() {
         gzip -tq "$zip" || unzip -tqq "$zip" || fail_zips+=("$zip")
     done
 
-    ((${#fail_zips[@]})) && _error_quit "文件验证失败：${fail_zips[*]} 请删除后重试，或自行下载对应版本至 ${ZIP_BASE_DIR} 目录"
+    ((${#fail_zips[@]})) && _error_quit "File verification failed: ${fail_zips[*]}. Please delete and retry, or download the corresponding version to ${ZIP_BASE_DIR}"
 }
 _unzip_zip() {
     _valid_zip "$ZIP_KERNEL" "$ZIP_YQ" "$ZIP_SUBCONVERTER" "$ZIP_UI"
@@ -188,7 +188,7 @@ _detect_init() {
     service_follow_log=(tail -f -n 0 $FILE_LOG)
     service_watch_proxy=(clashon)
     _is_regular_sudo && {
-        service_watch_proxy=(_failcat "'未检测到代理变量，可执行 clashon 开启代理环境'")
+        service_watch_proxy=(_failcat "'Proxy variables not detected, run clashon to enable proxy'")
         _SUDO=sudo
     }
 
@@ -325,7 +325,7 @@ _install_service() {
         -e "s#placeholder_watch_proxy#${service_watch_proxy[*]}#g" \
         "$CLASH_CMD_DIR/clashctl.sh" "$CLASH_CMD_DIR/common.sh"
 
-    "${service_enable[@]}" >&/dev/null && _okcat '🚀' '已设置开机自启'
+    "${service_enable[@]}" >&/dev/null && _okcat '🚀' 'Auto-start on boot enabled'
     ((${#service_reload[@]})) && "${service_reload[@]}"
 }
 _uninstall_service() {
@@ -358,9 +358,9 @@ _apply_rc() {
     # shellcheck disable=SC2086
     tee -a "$SHELL_RC_BASH" $SHELL_RC_ZSH >/dev/null <<EOF
 $start_flag
-# 加载 clashctl 命令
+# Load clashctl commands
 $source_clashctl
-# 自动开启代理环境
+# Auto-enable proxy environment
 watch_proxy
 $end_flag
 EOF

@@ -64,7 +64,7 @@ function _detect_ext_addr() {
     _is_port_used "$EXT_PORT" && clashstatus >&/dev/null && clashoff >&/dev/null
     _is_port_used "$EXT_PORT" && {
         local newPort=$(_get_random_port)
-        _failcat '🎯' "端口冲突：[external-controller] ${EXT_PORT} 🎲 随机分配 $newPort"
+        _failcat '🎯' "Port conflict: [external-controller] ${EXT_PORT} 🎲 Randomly assigned $newPort"
         EXT_PORT=$newPort
         "$BIN_YQ" -i ".external-controller = \"$ext_ip:$newPort\"" "$CLASH_CONFIG_MIXIN"
         _merge_config
@@ -124,9 +124,9 @@ function _valid_config() {
     test_log=$("${test_cmd[@]}") || {
         "${test_cmd[@]}"
         grep -qs "unsupport proxy type" <<<"$test_log" && {
-            local prefix="检测到订阅中包含不受支持的代理协议"
-            [ "$KERNEL_NAME" = "clash" ] && _error_quit "${prefix}, 推荐安装使用 mihomo 内核"
-            _error_quit "${prefix}, 请检查并升级内核版本"
+            local prefix="Subscription contains unsupported proxy protocol"
+            [ "$KERNEL_NAME" = "clash" ] && _error_quit "${prefix}, recommended to install mihomo kernel"
+            _error_quit "${prefix}, please check and upgrade kernel version"
         }
     }
 }
@@ -134,11 +134,11 @@ function _valid_config() {
 function _download_config() {
     local dest=$1
     local url=$2
-    [ "${url:0:4}" = 'file' ] || _okcat '⏳' '正在下载...'
+    [ "${url:0:4}" = 'file' ] || _okcat '⏳' 'Downloading...'
     _download_raw_config "$dest" "$url" || return 1
-    _okcat '🍃' '验证订阅配置...'
+    _okcat '🍃' 'Verifying subscription config...'
     _valid_config "$dest" || {
-        _failcat '🍂' "验证失败：尝试订阅转换..."
+        _failcat '🍂' "Verification failed: attempting subscription conversion..."
         cat "$dest" >"${dest}.raw"
         _download_convert_config "$dest" "$url"
     }
@@ -197,7 +197,7 @@ _detect_subconverter_port() {
     BIN_SUBCONVERTER_PORT=$("$BIN_YQ" '.server.port' "$BIN_SUBCONVERTER_CONFIG")
     _is_port_used "$BIN_SUBCONVERTER_PORT" && {
         local newPort=$(_get_random_port)
-        _failcat '🎯' "端口冲突：[subconverter] ${BIN_SUBCONVERTER_PORT} 🎲 随机分配：$newPort"
+        _failcat '🎯' "Port conflict: [subconverter] ${BIN_SUBCONVERTER_PORT} 🎲 Randomly assigned: $newPort"
         BIN_SUBCONVERTER_PORT=$newPort
         "$BIN_YQ" -i ".server.port = $newPort" "$BIN_SUBCONVERTER_CONFIG" 2>/dev/null
     }
@@ -212,7 +212,7 @@ _start_convert() {
     while ! $check_cmd >&/dev/null; do
         sleep 0.5s
         local now=$(date +%s)
-        [ $((now - start)) -gt 2 ] && _error_quit "订阅转换服务未启动，请检查日志：$BIN_SUBCONVERTER_LOG"
+        [ $((now - start)) -gt 2 ] && _error_quit "Subscription conversion service not started, check log: $BIN_SUBCONVERTER_LOG"
     done
 }
 _stop_convert() {

@@ -228,8 +228,8 @@ _clash_api_select_proxy() {
 
 function clashjapan() {
     # Main selector group name (🔰 Node Selection)
-    local main_selector="🔰 节点选择"
-    local japan_node="JP.日本.D"
+    local main_selector="🔰 Node Selection"
+    local japan_node="JP.Japan.D"
     if _clash_api_select_proxy "$main_selector" "$japan_node"; then
         _okcat "Switched to Japan node: $japan_node"
     else

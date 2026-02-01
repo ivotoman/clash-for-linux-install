@@ -314,6 +314,16 @@ _install_service() {
             "$service_target"
     }
 
+    # Add sudoers for passwordless clash/clashtun
+    local sudoers_file="/etc/sudoers.d/clash"
+    _okcat '🛡️' "Installing sudoers for passwordless clash..."
+    echo "$SUDO_USER ALL=(ALL) NOPASSWD: /usr/bin/systemctl start $KERNEL_NAME, /usr/bin/systemctl stop $KERNEL_NAME, /usr/bin/systemctl restart $KERNEL_NAME, /usr/bin/pkill -9 -f $cmd_path, /usr/bin/nohup $cmd_path *" | sudo tee "$sudoers_file" >/dev/null
+    sudo chmod 440 "$sudoers_file"
+
+    # Set CAP_NET_ADMIN on mihomo for TUN fallback
+    _okcat '🛡️' "Setting CAP_NET_ADMIN on $KERNEL_NAME..."
+    sudo setcap cap_net_admin+ep "$cmd_path" 2>/dev/null || true
+
     sed -i \
         -e "s#placeholder_start#${service_start[*]}#g" \
         -e "s#placeholder_sudo_start#${service_sudo_start[*]}#g" \

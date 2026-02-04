@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Clash VPN Manager
+Comment=Manage Clash/Mihomo VPN connections
+Exec=/opt/clash-vpn-manager/clash-vpn-manager
+Icon=clash-vpn-manager
+Terminal=false
+Type=Application
+Categories=Network;System;
+Keywords=VPN;Proxy;Clash;Mihomo;
+StartupNotify=true
+StartupWMClass=com.clashgui.ClashGUI

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Clash VPN Manager
+Comment=Manage Clash/Mihomo VPN connections
+Exec=python3 /home/ivo/clash-linux/gui/main.py
+Icon=network-vpn
+Terminal=false
+Type=Application
+Categories=Network;System;
+Keywords=VPN;Proxy;Clash;Mihomo;

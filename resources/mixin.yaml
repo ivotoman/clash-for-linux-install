@@ -1,17 +1,14 @@
 _custom:
   system-proxy:
     enable: true
-
 mixed-port: 7890
-
 external-controller: "0.0.0.0:9090"
 external-ui: dist
 external-ui-url: https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip
-secret:
-
+secret: iwhgeN
 allow-lan: false # 若开启务必设置用户验证以防暴露公网后被滥用
 authentication:
-  # - "username:password" # 用户验证（clashon 会自动填充）
+# - "username:password" # 用户验证（clashon 会自动填充）
 
 # prefix：前置插入
 # suffix：后置插入
@@ -21,17 +18,14 @@ rules:
     - DOMAIN,api64.ipify.org,DIRECT # 用于 clashui 获取真实公网 IP
     # - DOMAIN-KEYWORD,github,proxy   # 用于 clashupgrade 升级内核
   suffix:
-
 proxies:
   prefix:
   suffix:
   override:
-
 proxy-groups:
   prefix:
   suffix:
   override:
-
 # tun 配置
 tun:
   enable: false
@@ -50,7 +44,11 @@ tun:
   exclude-interface:
     - docker0 # 避免无法访问容器内服务
     - podman0 # 详见：https://github.com/nelvko/clash-for-linux-install/issues/100#issuecomment-2995667368
-
+    # 避免与 Mullvad/WireGuard 等 VPN 冲突
+    - wg0
+    - wg1
+    - mullvad-wg
+    - wg-mullvad
 # DNS 配置
 dns:
   enable: true

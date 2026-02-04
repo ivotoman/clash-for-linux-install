@@ -1,0 +1,11 @@
+Package: clash-vpn-manager
+Version: 1.0.0
+Section: net
+Priority: optional
+Architecture: all
+Depends: python3 (>= 3.10), python3-gi, python3-yaml, gir1.2-gtk-4.0, gir1.2-adw-1, gir1.2-gtk-3.0, gir1.2-ayatanaappindicator3-0.1
+Maintainer: Clash Linux <noreply@example.com>
+Description: GTK4 desktop application for Clash/Mihomo VPN
+ A graphical interface for managing Clash/Mihomo VPN connections.
+ Features include subscription management, server selection,
+ TUN mode toggle, connection status monitoring, and system tray support.

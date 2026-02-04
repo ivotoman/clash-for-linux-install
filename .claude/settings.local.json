@@ -15,7 +15,12 @@
       "Bash(systemctl status:*)",
       "Bash(ip link:*)",
       "Bash(sudo journalctl:*)",
-      "Bash(bash:*)"
+      "Bash(bash:*)",
+      "Bash(dpkg:*)",
+      "Bash(apt list:*)",
+      "Bash(dpkg-deb:*)",
+      "Bash(/opt/clash-vpn-manager/clash-vpn-manager:*)",
+      "Bash(timeout 3 python3:*)"
     ]
   }
 }

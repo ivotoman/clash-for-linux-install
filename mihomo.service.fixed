@@ -1,0 +1,26 @@
+[Unit]
+Description=mihomo (Clash) VPN with TUN
+After=network-online.target NetworkManager.service systemd-networkd.service local-fs.target
+Wants=network-online.target
+# Wait for install path to be available (avoids "Resource temporarily unavailable" at boot)
+RequiresMountsFor=/home/ivo/clashctl
+
+[Service]
+Type=simple
+# Run as root so TUN device can be created (operation not permitted when running as user)
+User=root
+Group=root
+WorkingDirectory=/home/ivo/clashctl
+LimitNPROC=500
+LimitNOFILE=1000000
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=120
+StartLimitBurst=8
+ExecStartPre=/usr/bin/sleep 2
+ExecStart=/home/ivo/clashctl/scripts/start-clash-service.sh
+StandardOutput=append:/home/ivo/clashctl/resources/mihomo.log
+StandardError=append:/home/ivo/clashctl/resources/mihomo.log
+
+[Install]
+WantedBy=multi-user.target

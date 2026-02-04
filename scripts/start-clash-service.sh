@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Wrapper for systemd: merge config and run mihomo (Clash + TUN at boot)
 set -e
-export CLASH_BASE_DIR=/home/ivo/clashctl
+CLASH_BASE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+export CLASH_BASE_DIR
 cd "$CLASH_BASE_DIR"
 . scripts/cmd/clashctl.sh
 _merge_config

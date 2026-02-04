@@ -90,7 +90,7 @@ _service_stop() {
     if _use_systemd; then
         sudo systemctl stop mihomo 2>/dev/null || true
     else
-        sudo pkill -9 -f /home/ivo/clashctl/bin/mihomo 2>/dev/null || true
+        sudo pkill -9 -f "$BIN_KERNEL" 2>/dev/null || true
     fi
 }
 _service_start() {
@@ -100,7 +100,7 @@ _service_start() {
         fi
         # Fallback to nohup if systemd fails (e.g. broken service file)
     fi
-    ( nohup /home/ivo/clashctl/bin/mihomo -d /home/ivo/clashctl/resources -f /home/ivo/clashctl/resources/runtime.yaml >& /home/ivo/clashctl/resources/mihomo.log & )
+    ( nohup "$BIN_KERNEL" -d "$CLASH_RESOURCES_DIR" -f "$CLASH_CONFIG_RUNTIME" >& "$CLASH_RESOURCES_DIR/mihomo.log" & )
 }
 
 function clashon() {
@@ -193,15 +193,15 @@ $(env | grep -i 'proxy=')"
 function clashstatus() {
     if _use_systemd 2>/dev/null; then
         if systemctl is-active --quiet mihomo 2>/dev/null; then
-            pgrep -fa /home/ivo/clashctl/bin/mihomo "$@"
+            pgrep -fa "$BIN_KERNEL" "$@"
             return $?
         fi
     fi
-    pgrep -fa /home/ivo/clashctl/bin/mihomo "$@"
+    pgrep -fa "$BIN_KERNEL" "$@"
 }
 
 function clashlog() {
-    less < /home/ivo/clashctl/resources/mihomo.log "$@"
+    less < "$CLASH_RESOURCES_DIR/mihomo.log" "$@"
 }
 
 # Set proxy group selection via Clash API (group_name = select group, proxy_name = node to use)
@@ -335,9 +335,9 @@ _merge_config_restart() {
     if _use_systemd; then
         sudo systemctl restart mihomo >/dev/null
     else
-        pkill -9 -f /home/ivo/clashctl/bin/mihomo >/dev/null
+        pkill -9 -f "$BIN_KERNEL" >/dev/null
         sleep 0.1
-        ( nohup /home/ivo/clashctl/bin/mihomo -d /home/ivo/clashctl/resources -f /home/ivo/clashctl/resources/runtime.yaml >& /home/ivo/clashctl/resources/mihomo.log & ) >/dev/null
+        ( nohup "$BIN_KERNEL" -d "$CLASH_RESOURCES_DIR" -f "$CLASH_CONFIG_RUNTIME" >& "$CLASH_RESOURCES_DIR/mihomo.log" & ) >/dev/null
     fi
     sleep 0.1
 }
@@ -394,7 +394,7 @@ _tunoff() {
     if _use_systemd; then
         sudo systemctl stop mihomo 2>/dev/null || true
     else
-        sudo pkill -9 -f /home/ivo/clashctl/bin/mihomo 2>/dev/null || true
+        sudo pkill -9 -f "$BIN_KERNEL" 2>/dev/null || true
     fi
     clashon >/dev/null
     _okcat "Tun mode disabled"
@@ -405,11 +405,11 @@ _sudo_restart() {
         sleep 0.3
         sudo systemctl start mihomo
     else
-        sudo pkill -9 -f /home/ivo/clashctl/bin/mihomo 2>/dev/null || true
+        sudo pkill -9 -f "$BIN_KERNEL" 2>/dev/null || true
         sleep 0.5
         : > "$CLASH_RESOURCES_DIR/mihomo.log"
         # Run as root so TUN works (Antigravity/Go apps ignore proxy; TUN routes all traffic)
-        ( sudo nohup /home/ivo/clashctl/bin/mihomo -d /home/ivo/clashctl/resources -f /home/ivo/clashctl/resources/runtime.yaml >> "$CLASH_RESOURCES_DIR/mihomo.log" 2>&1 & )
+        ( sudo nohup "$BIN_KERNEL" -d "$CLASH_RESOURCES_DIR" -f "$CLASH_CONFIG_RUNTIME" >> "$CLASH_RESOURCES_DIR/mihomo.log" 2>&1 & )
     fi
     sleep 0.5
 }
@@ -544,7 +544,7 @@ EOF
     local secret=$("$BIN_YQ" '.secret // ""' "$CLASH_CONFIG_RUNTIME")
     _okcat '⏳' "Requesting kernel upgrade..."
     [ "$log_flag" = true ] && {
-        log_cmd=(tail -f -n 0 /home/ivo/clashctl/resources/mihomo.log)
+        log_cmd=(tail -f -n 0 "$CLASH_RESOURCES_DIR/mihomo.log")
         ("${log_cmd[@]}" &)
 
     }

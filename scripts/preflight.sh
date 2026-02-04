@@ -304,6 +304,7 @@ _install_service() {
         /usr/bin/install -D -m +x "$service_src" "$service_target"
         ((${#service_add[@]})) && "${service_add[@]}"
         sed -i \
+            -e "s#placeholder_clash_base_dir#$CLASH_BASE_DIR#g" \
             -e "s#placeholder_cmd_path#$cmd_path#g" \
             -e "s#placeholder_cmd_args#$cmd_arg#g" \
             -e "s#placeholder_cmd_full#$cmd_full#g" \

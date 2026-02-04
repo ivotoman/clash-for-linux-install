@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /home/ivo/clash-linux log --oneline -20)",
+      "Bash(git -C /home/ivo/clash-linux remote:*)",
+      "Bash(git -C /home/ivo/clash-linux status)",
+      "Bash(git -C /home/ivo/clash-linux diff)",
+      "Bash(git -C /home/ivo/clash-linux log --oneline -5)",
+      "Bash(git -C /home/ivo/clash-linux add CLAUDE.md)",
+      "Bash(git -C /home/ivo/clash-linux commit -m \"$\\(cat <<''EOF''\nAdd CLAUDE.md for Claude Code guidance\n\nProvides project overview, commands, architecture documentation,\nand code style guidelines for future Claude Code instances.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(ip addr:*)",
+      "Bash(ip route:*)",
+      "Bash(pgrep:*)",
+      "Bash(systemctl is-active:*)",
+      "Bash(systemctl status:*)",
+      "Bash(ip link:*)",
+      "Bash(sudo journalctl:*)",
+      "Bash(bash:*)"
+    ]
+  }
+}

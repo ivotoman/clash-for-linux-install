@@ -38,11 +38,13 @@ class QuotaParser:
             r"剩[餘余].*?([0-9.]+)\s*(GB|MB|TB|G|M|T)",
             r"(?:remaining|left)[:\s]*([0-9.]+)\s*(GB|MB|TB)",
             r"([0-9.]+)\s*(GB|MB|TB)\s*(?:remaining|剩余|left)",
+            r"([0-9.]+)\s*(GB|MB|TB)", # Broad fallback for anything with GB/MB/TB
         ],
         # Total traffic patterns
         "total": [
             r"(?:total|总计|總計|总流量|套餐)[:\s：]*([0-9.]+)\s*(GB|MB|TB|G|M|T)",
             r"([0-9.]+)\s*(GB|MB|TB)\s*(?:total|package)",
+            r"套餐[:\s：]*([0-9.]+)\s*(GB|MB|TB|G|M|T)",
         ],
         # Used traffic patterns
         "used": [
@@ -107,9 +109,16 @@ class QuotaParser:
             QuotaInfo with parsed values
         """
         quota = QuotaInfo()
+        
+        # Default total to 300 GB as requested by user
+        quota.total_gb = 300.0
 
         # Combine all proxy names into one string for parsing
-        all_names = "\n".join(p.get("name", "") for p in proxies)
+        # Support both list of dicts (proxies) and list of strings (proxy names)
+        if proxies and isinstance(proxies[0], str):
+            all_names = "\n".join(proxies)
+        else:
+            all_names = "\n".join(p.get("name", "") for p in proxies)
 
         # Parse remaining traffic
         result = self._extract_value(all_names, self.PATTERNS["remaining"])
@@ -126,18 +135,10 @@ class QuotaParser:
                 quota.total_gb = self._to_gb(float(result[0]), result[1])
             except (ValueError, TypeError):
                 pass
-
-        # Parse used traffic
-        result = self._extract_value(all_names, self.PATTERNS["used"])
-        if result and len(result) >= 2:
-            try:
-                quota.used_gb = self._to_gb(float(result[0]), result[1])
-            except (ValueError, TypeError):
-                pass
-
-        # Calculate remaining from total - used if not directly available
-        if quota.remaining_gb is None and quota.total_gb and quota.used_gb:
-            quota.remaining_gb = quota.total_gb - quota.used_gb
+        
+        # Calculate used_gb if total and remaining are available
+        if quota.total_gb and quota.remaining_gb is not None:
+            quota.used_gb = quota.total_gb - quota.remaining_gb
 
         # Parse reset days
         result = self._extract_value(all_names, self.PATTERNS["reset_days"])

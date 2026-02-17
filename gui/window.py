@@ -406,17 +406,33 @@ class MainWindow(Adw.ApplicationWindow):
     def _refresh_quota(self):
         """Refresh quota information."""
         try:
-            proxies = self.config.get_proxies()
-            quota = self.quota_parser.parse_proxy_names(proxies)
+            # Try to get proxies from API first (more up to date)
+            if self.api.is_running():
+                proxies_data = self.api.get_proxies()
+                if proxies_data and "proxies" in proxies_data:
+                    # Collect all proxy names from the API response
+                    proxy_names = list(proxies_data["proxies"].keys())
+                    quota = self.quota_parser.parse_proxy_names(proxy_names)
+                else:
+                    # Fallback to config if API fails
+                    proxies = self.config.get_proxies()
+                    quota = self.quota_parser.parse_proxy_names(proxies)
+            else:
+                # Fallback to config if service not running
+                proxies = self.config.get_proxies()
+                quota = self.quota_parser.parse_proxy_names(proxies)
 
-            if quota.remaining_gb is not None and quota.total_gb:
+            if quota.remaining_gb is not None:
                 remaining = format_bytes(quota.remaining_gb)
-                total = format_bytes(quota.total_gb)
-                self.quota_label.set_label(f"Remaining: {remaining} / {total}")
-
-                # Update progress (show used, not remaining)
-                used_percent = quota.usage_percent or 0
-                self.quota_progress.set_fraction(used_percent / 100)
+                if quota.total_gb:
+                    total = format_bytes(quota.total_gb)
+                    self.quota_label.set_label(f"Remaining: {remaining} / {total}")
+                    # Update progress (show used, not remaining)
+                    used_percent = quota.usage_percent or 0
+                    self.quota_progress.set_fraction(used_percent / 100)
+                else:
+                    self.quota_label.set_label(f"Remaining: {remaining}")
+                    self.quota_progress.set_fraction(0)
             else:
                 self.quota_label.set_label("Quota info not available")
                 self.quota_progress.set_fraction(0)
